@@ -8,7 +8,9 @@ x-s3-env: &s3-env
   AWS_DEFAULT_REGION: ${S3_REGION}
 
 x-airflow: &airflow
-  build: ./airflow
+  build:
+    context: .
+    dockerfile: airflow/Dockerfile
   image: mf-mlops/airflow:2.10.5-ml
   environment: &airflow-env
     <<: *s3-env
@@ -24,10 +26,16 @@ x-airflow: &airflow
     MLOPS_DB: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/mlops
     S3_ENDPOINT: http://s3:9000
     PYTHONPATH: /opt/airflow/repo
+    EVIDENTLY_WORKSPACE: /opt/evidently-ws
+    FEAST_REPO: /opt/airflow/repo/feature_repo
+    DO_NOT_TRACK: "1"
+    EVIDENTLY_DISABLE_TELEMETRY: "1"
+    FEAST_USAGE: "False"
   volumes:
     - ../dags:/opt/airflow/dags
     - ..:/opt/airflow/repo
     - airflow-logs:/opt/airflow/logs
+    - evidently-ws:/opt/evidently-ws
   depends_on: &airflow-deps
     postgres:
       condition: service_healthy
@@ -145,11 +153,61 @@ services:
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MODEL_NAME: churn
       MODEL_ALIAS: champion
-      REFRESH_SECONDS: "15"
+      CANARY_ALIAS: canary
+      REFRESH_SECONDS: ${API_REFRESH_SECONDS:-15}
+      MLOPS_DB: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/mlops
+      FEAST_URL: http://feast-server:6566
     ports:
       - "127.0.0.1:${PORT_API}:8000"
 
+  # --- profile "monitoring": Feast online store + feature server + UI, and the Evidently UI.
+  online-store:
+    image: valkey/valkey:8.1-alpine
+    container_name: mf-mlops-valkey
+    profiles: ["monitoring"]
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+
+  feast-server:
+    image: mf-mlops/monitor:dev
+    build:
+      context: .
+      dockerfile: monitor/Dockerfile
+    container_name: mf-mlops-feast-server
+    profiles: ["monitoring"]
+    depends_on:
+      - online-store
+    working_dir: /repo/feature_repo
+    command: ["feast", "serve", "--host", "0.0.0.0", "--port", "6566", "--no-access-log"]
+    volumes:
+      - ..:/repo
+    ports:
+      - "127.0.0.1:${PORT_FEAST_SERVER}:6566"
+
+  feast-ui:
+    image: mf-mlops/monitor:dev
+    container_name: mf-mlops-feast-ui
+    profiles: ["monitoring"]
+    depends_on:
+      - online-store
+    working_dir: /repo/feature_repo
+    command: ["feast", "ui", "--host", "0.0.0.0", "--port", "8888"]
+    volumes:
+      - ..:/repo
+    ports:
+      - "127.0.0.1:${PORT_FEAST_UI}:8888"
+
+  evidently-ui:
+    image: mf-mlops/monitor:dev
+    container_name: mf-mlops-evidently-ui
+    profiles: ["monitoring"]
+    command: ["evidently", "ui", "--workspace", "/ws", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - evidently-ws:/ws
+    ports:
+      - "127.0.0.1:${PORT_EVIDENTLY_UI}:8000"
+
 volumes:
+  evidently-ws:
   pg-data:
   s3-data:
   airflow-logs:
