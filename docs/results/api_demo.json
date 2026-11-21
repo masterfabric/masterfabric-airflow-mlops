@@ -1,0 +1,19 @@
+{
+  "model": {
+    "version": "4",
+    "run_id": "810541f35a964806b5634b711c40f4cc",
+    "loaded_at": "2026-11-21T00:28:57.573015+00:00",
+    "swaps": 1,
+    "last_error": null,
+    "name": "churn",
+    "alias": "champion"
+  },
+  "answered_by_version": "4",
+  "single_request_ms": {
+    "p50": 2.67,
+    "p95": 2.93,
+    "n": 200
+  },
+  "batch_1000_ms": 11.4,
+  "max_abs_diff_vs_batch_scoring": 4.997261390894681e-06
+}
