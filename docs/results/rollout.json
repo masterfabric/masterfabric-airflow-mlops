@@ -1,0 +1,203 @@
+{
+  "month_replayed": "2026-10",
+  "subscribers": 66274,
+  "batch": 50,
+  "workers": 4,
+  "stages_pct": [
+    5,
+    25,
+    50
+  ],
+  "limits": {
+    "error_rate": 0.005,
+    "latency_factor": 1.5,
+    "latency_slack_ms": 5.0,
+    "spearman_min": 0.8,
+    "mean_rel_diff_max": 0.25,
+    "share_tolerance_pts": 1.5,
+    "auc_ni_margin": -0.005
+  },
+  "candidates": [
+    {
+      "version": "6",
+      "role": "rollout_candidate_broken",
+      "champion_before": "4",
+      "canary_load_s": 1.83,
+      "stages": [
+        {
+          "rows": 66274,
+          "canary_rows": 3381,
+          "routed_share_pct": 5.1,
+          "error_rate": 0.0,
+          "canary_p95_ms": 6.42,
+          "champion_p95_ms": 28.66,
+          "spearman": -0.0876,
+          "canary_mean": 0.0598,
+          "shadow_mean": 0.0539,
+          "mean_rel_diff": 0.1095,
+          "checks": {
+            "errors": true,
+            "latency": true,
+            "rank_agreement": false,
+            "mean_prediction": true,
+            "routed_share": true,
+            "sticky": true
+          },
+          "passed": false,
+          "target_pct": 5,
+          "picked_up_s": 15.26,
+          "replay_s": 10.87,
+          "requests": 1326,
+          "sticky": true,
+          "unpaired_ab": {
+            "champion": {
+              "n": 62893,
+              "auc": 0.8297
+            },
+            "canary": {
+              "n": 3381,
+              "auc": 0.4202
+            }
+          }
+        }
+      ],
+      "rollback_s": 2.89,
+      "outcome": "rolled_back",
+      "failed_at_pct": 5,
+      "failed_checks": [
+        "rank_agreement"
+      ]
+    },
+    {
+      "version": "5",
+      "role": "rollout_candidate_good",
+      "champion_before": "4",
+      "canary_load_s": 15.05,
+      "stages": [
+        {
+          "rows": 66274,
+          "canary_rows": 3381,
+          "routed_share_pct": 5.1,
+          "error_rate": 0.0,
+          "canary_p95_ms": 22.21,
+          "champion_p95_ms": 24.09,
+          "spearman": 0.9689,
+          "canary_mean": 0.0598,
+          "shadow_mean": 0.0539,
+          "mean_rel_diff": 0.1095,
+          "checks": {
+            "errors": true,
+            "latency": true,
+            "rank_agreement": true,
+            "mean_prediction": true,
+            "routed_share": true,
+            "sticky": true
+          },
+          "passed": true,
+          "target_pct": 5,
+          "picked_up_s": 15.07,
+          "replay_s": 13.9,
+          "requests": 1326,
+          "sticky": true,
+          "unpaired_ab": {
+            "champion": {
+              "n": 62893,
+              "auc": 0.8297
+            },
+            "canary": {
+              "n": 3381,
+              "auc": 0.8291
+            }
+          }
+        },
+        {
+          "rows": 66274,
+          "canary_rows": 16698,
+          "routed_share_pct": 25.2,
+          "error_rate": 0.0,
+          "canary_p95_ms": 21.7,
+          "champion_p95_ms": 23.99,
+          "spearman": 0.9693,
+          "canary_mean": 0.0587,
+          "shadow_mean": 0.0529,
+          "mean_rel_diff": 0.1096,
+          "checks": {
+            "errors": true,
+            "latency": true,
+            "rank_agreement": true,
+            "mean_prediction": true,
+            "routed_share": true,
+            "sticky": true
+          },
+          "passed": true,
+          "target_pct": 25,
+          "picked_up_s": 14.8,
+          "replay_s": 14.24,
+          "requests": 1326,
+          "sticky": true,
+          "unpaired_ab": {
+            "champion": {
+              "n": 49576,
+              "auc": 0.8279
+            },
+            "canary": {
+              "n": 16698,
+              "auc": 0.8343
+            }
+          }
+        },
+        {
+          "rows": 66274,
+          "canary_rows": 33173,
+          "routed_share_pct": 50.05,
+          "error_rate": 0.0,
+          "canary_p95_ms": 21.55,
+          "champion_p95_ms": 23.62,
+          "spearman": 0.9693,
+          "canary_mean": 0.0587,
+          "shadow_mean": 0.053,
+          "mean_rel_diff": 0.1075,
+          "checks": {
+            "errors": true,
+            "latency": true,
+            "rank_agreement": true,
+            "mean_prediction": true,
+            "routed_share": true,
+            "sticky": true
+          },
+          "passed": true,
+          "target_pct": 50,
+          "picked_up_s": 14.79,
+          "replay_s": 14.3,
+          "requests": 1326,
+          "sticky": true,
+          "unpaired_ab": {
+            "champion": {
+              "n": 33101,
+              "auc": 0.8242
+            },
+            "canary": {
+              "n": 33173,
+              "auc": 0.8347
+            }
+          }
+        }
+      ],
+      "paired_auc": {
+        "n": 33173,
+        "positives": 1867,
+        "auc_canary": 0.8347,
+        "auc_champion_same_rows": 0.8354,
+        "delta": -0.0007,
+        "ci95": [
+          -0.0031,
+          0.0016
+        ],
+        "bootstrap": 1000
+      },
+      "champion_swap_s": 7.79,
+      "outcome": "promoted",
+      "champion_after": "5"
+    }
+  ]
+}
