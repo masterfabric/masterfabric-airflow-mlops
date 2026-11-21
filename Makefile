@@ -24,3 +24,6 @@ ps: ## Service status
 
 logs: ## Tail logs
 	$(COMPOSE) logs -f --tail=50
+
+test: ## Unit tests (data generator, quality gate, drift, model) inside the Airflow container
+	$(AF) python -m pytest -q -p no:cacheprovider tests
