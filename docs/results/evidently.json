@@ -1,0 +1,239 @@
+{
+  "threshold_psi": 0.25,
+  "drift": [
+    {
+      "month": "2026-06",
+      "champion_version": "1",
+      "decision": "keep",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "device_age_months",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "device_age_months",
+        0.3577
+      ],
+      "in_house_psi_max": [
+        "contract_months_left",
+        0.1916
+      ],
+      "evidently_psi_over_025": [
+        "device_age_months"
+      ],
+      "in_house_psi_over_025": [],
+      "trigger_agrees": false,
+      "seconds": 0.97
+    },
+    {
+      "month": "2026-07",
+      "champion_version": "1",
+      "decision": "rejected",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "device_5g",
+        "device_age_months",
+        "monthly_fee",
+        "plan",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "device_age_months",
+        0.3382
+      ],
+      "in_house_psi_max": [
+        "plan",
+        0.3151
+      ],
+      "evidently_psi_over_025": [
+        "device_age_months",
+        "plan",
+        "tenure_months"
+      ],
+      "in_house_psi_over_025": [
+        "plan"
+      ],
+      "trigger_agrees": true,
+      "seconds": 0.99
+    },
+    {
+      "month": "2026-08",
+      "champion_version": "1",
+      "decision": "promoted",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "device_5g",
+        "device_age_months",
+        "monthly_fee",
+        "plan",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "tenure_months",
+        0.5451
+      ],
+      "in_house_psi_max": [
+        "plan",
+        0.2983
+      ],
+      "evidently_psi_over_025": [
+        "contract_months_left",
+        "device_age_months",
+        "plan",
+        "tenure_months"
+      ],
+      "in_house_psi_over_025": [
+        "plan"
+      ],
+      "trigger_agrees": true,
+      "seconds": 1.0
+    },
+    {
+      "month": "2026-09",
+      "champion_version": "3",
+      "decision": "promoted",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "plan",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "plan",
+        0.2769
+      ],
+      "in_house_psi_max": [
+        "plan",
+        0.2776
+      ],
+      "evidently_psi_over_025": [
+        "plan"
+      ],
+      "in_house_psi_over_025": [
+        "plan"
+      ],
+      "trigger_agrees": true,
+      "seconds": 0.98
+    },
+    {
+      "month": "2026-10",
+      "champion_version": "4",
+      "decision": "keep",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "tenure_months",
+        0.1199
+      ],
+      "in_house_psi_max": [
+        "tenure_months",
+        0.0819
+      ],
+      "evidently_psi_over_025": [],
+      "in_house_psi_over_025": [],
+      "trigger_agrees": true,
+      "seconds": 0.98
+    },
+    {
+      "month": "2026-11",
+      "champion_version": "4",
+      "decision": "keep",
+      "evidently_default_drifted": [
+        "contract_months_left",
+        "data_gb",
+        "device_5g",
+        "tenure_months"
+      ],
+      "evidently_default_methods": [
+        "Jensen-Shannon distance",
+        "Wasserstein distance (normed)"
+      ],
+      "evidently_psi_max": [
+        "device_age_months",
+        0.2084
+      ],
+      "in_house_psi_max": [
+        "tenure_months",
+        0.1223
+      ],
+      "evidently_psi_over_025": [],
+      "in_house_psi_over_025": [],
+      "trigger_agrees": true,
+      "seconds": 1.01
+    }
+  ],
+  "summary": {
+    "months": 6,
+    "psi_trigger_agreement": "5/6",
+    "months_with_default_drift_flags": 6,
+    "months_in_house_trigger": 3,
+    "max_abs_psi_diff_categorical": 0.0008,
+    "max_abs_psi_diff_numeric": 0.3274,
+    "max_abs_auc_diff": 0.0,
+    "mean_report_seconds": 0.99
+  },
+  "quality": [
+    {
+      "month": "2026-05",
+      "model_version": "1",
+      "roc_auc": 0.8123,
+      "in_house_auc": 0.8123
+    },
+    {
+      "month": "2026-06",
+      "model_version": "1",
+      "roc_auc": 0.7819,
+      "in_house_auc": 0.7819
+    },
+    {
+      "month": "2026-07",
+      "model_version": "1",
+      "roc_auc": 0.7796,
+      "in_house_auc": 0.7796
+    },
+    {
+      "month": "2026-08",
+      "model_version": "3",
+      "roc_auc": 0.8188,
+      "in_house_auc": 0.8188
+    },
+    {
+      "month": "2026-09",
+      "model_version": "4",
+      "roc_auc": 0.8272,
+      "in_house_auc": 0.8272
+    },
+    {
+      "month": "2026-10",
+      "model_version": "4",
+      "roc_auc": 0.83,
+      "in_house_auc": 0.83
+    }
+  ]
+}
