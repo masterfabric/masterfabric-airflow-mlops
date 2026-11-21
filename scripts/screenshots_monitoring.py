@@ -26,7 +26,6 @@ def evidently(page) -> None:
     page.get_by_role("tab", name="Reports").first.click() if page.get_by_role("tab", name="Reports").count() else \
         page.get_by_text("Reports", exact=True).first.click()
     page.wait_for_timeout(3000)
-    shot(page, "evidently_reports")
     row = page.locator("tr", has_text="drift 2026-07")
     row.get_by_text("View", exact=True).first.click()
     page.wait_for_timeout(7000)
