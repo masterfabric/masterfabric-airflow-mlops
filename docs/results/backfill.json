@@ -1,0 +1,1363 @@
+{
+ "months": [
+  "2025-12",
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+  "2026-10",
+  "2026-11"
+ ],
+ "dq": [
+  {
+   "month": "2025-12",
+   "passed": true,
+   "rules": 10,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 60000
+  },
+  {
+   "month": "2026-01",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 60600
+  },
+  {
+   "month": "2026-02",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 61206
+  },
+  {
+   "month": "2026-03",
+   "passed": false,
+   "rules": 11,
+   "critical_failures": [
+    "null_rate_max",
+    "monthly_fee_non_negative"
+   ],
+   "warnings": [],
+   "rows": 61818
+  },
+  {
+   "month": "2026-04",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 62436
+  },
+  {
+   "month": "2026-05",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 63060
+  },
+  {
+   "month": "2026-06",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 63690
+  },
+  {
+   "month": "2026-07",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 64326
+  },
+  {
+   "month": "2026-08",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 64969
+  },
+  {
+   "month": "2026-09",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 65618
+  },
+  {
+   "month": "2026-10",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 66274
+  },
+  {
+   "month": "2026-11",
+   "passed": true,
+   "rules": 11,
+   "critical_failures": [],
+   "warnings": [],
+   "rows": 66936
+  }
+ ],
+ "drift": [
+  {
+   "month": "2026-06",
+   "champion_version": "1",
+   "max_psi": 0.1916,
+   "max_feature": "contract_months_left",
+   "psi": {
+    "nps": 0.0013,
+    "plan": 0.0032,
+    "region": 0.0007,
+    "data_gb": 0.0778,
+    "device_5g": 0.0775,
+    "voice_min": 0.0004,
+    "monthly_fee": 0.0034,
+    "discount_pct": 0.0005,
+    "family_lines": 0.0016,
+    "tenure_months": 0.1272,
+    "complaints_90d": 0.0004,
+    "device_age_months": 0.0303,
+    "dropped_call_rate": 0.0003,
+    "support_calls_30d": 0.0001,
+    "payment_delay_days": 0.0,
+    "contract_months_left": 0.1916
+   }
+  },
+  {
+   "month": "2026-07",
+   "champion_version": "1",
+   "max_psi": 0.3151,
+   "max_feature": "plan",
+   "psi": {
+    "nps": 0.0007,
+    "plan": 0.3151,
+    "region": 0.0011,
+    "data_gb": 0.1009,
+    "device_5g": 0.1232,
+    "voice_min": 0.0007,
+    "monthly_fee": 0.0192,
+    "discount_pct": 0.001,
+    "family_lines": 0.0023,
+    "tenure_months": 0.1802,
+    "complaints_90d": 0.0007,
+    "device_age_months": 0.0369,
+    "dropped_call_rate": 0.0008,
+    "support_calls_30d": 0.0,
+    "payment_delay_days": 0.0,
+    "contract_months_left": 0.2003
+   }
+  },
+  {
+   "month": "2026-08",
+   "champion_version": "1",
+   "max_psi": 0.2983,
+   "max_feature": "plan",
+   "psi": {
+    "nps": 0.0007,
+    "plan": 0.2983,
+    "region": 0.0011,
+    "data_gb": 0.1267,
+    "device_5g": 0.1722,
+    "voice_min": 0.0007,
+    "monthly_fee": 0.0195,
+    "discount_pct": 0.0016,
+    "family_lines": 0.0029,
+    "tenure_months": 0.2345,
+    "complaints_90d": 0.0001,
+    "device_age_months": 0.0444,
+    "dropped_call_rate": 0.0009,
+    "support_calls_30d": 0.0,
+    "payment_delay_days": 0.0,
+    "contract_months_left": 0.2249
+   }
+  },
+  {
+   "month": "2026-09",
+   "champion_version": "3",
+   "max_psi": 0.2776,
+   "max_feature": "plan",
+   "psi": {
+    "nps": 0.0006,
+    "plan": 0.2776,
+    "region": 0.0005,
+    "data_gb": 0.0367,
+    "device_5g": 0.0617,
+    "voice_min": 0.0006,
+    "monthly_fee": 0.016,
+    "discount_pct": 0.0008,
+    "family_lines": 0.0004,
+    "tenure_months": 0.0703,
+    "complaints_90d": 0.0,
+    "device_age_months": 0.0116,
+    "dropped_call_rate": 0.0009,
+    "support_calls_30d": 0.0,
+    "payment_delay_days": 0.0,
+    "contract_months_left": 0.0568
+   }
+  },
+  {
+   "month": "2026-10",
+   "champion_version": "4",
+   "max_psi": 0.0819,
+   "max_feature": "tenure_months",
+   "psi": {
+    "nps": 0.0007,
+    "plan": 0.0263,
+    "region": 0.0003,
+    "data_gb": 0.0349,
+    "device_5g": 0.0692,
+    "voice_min": 0.001,
+    "monthly_fee": 0.0062,
+    "discount_pct": 0.0011,
+    "family_lines": 0.0001,
+    "tenure_months": 0.0819,
+    "complaints_90d": 0.0003,
+    "device_age_months": 0.0097,
+    "dropped_call_rate": 0.0005,
+    "support_calls_30d": 0.0,
+    "payment_delay_days": 0.0001,
+    "contract_months_left": 0.0456
+   }
+  },
+  {
+   "month": "2026-11",
+   "champion_version": "4",
+   "max_psi": 0.1223,
+   "max_feature": "tenure_months",
+   "psi": {
+    "nps": 0.0008,
+    "plan": 0.0242,
+    "region": 0.0004,
+    "data_gb": 0.0552,
+    "device_5g": 0.1046,
+    "voice_min": 0.0013,
+    "monthly_fee": 0.0072,
+    "discount_pct": 0.0013,
+    "family_lines": 0.0002,
+    "tenure_months": 0.1223,
+    "complaints_90d": 0.0,
+    "device_age_months": 0.0145,
+    "dropped_call_rate": 0.0003,
+    "support_calls_30d": 0.0,
+    "payment_delay_days": 0.0,
+    "contract_months_left": 0.06
+   }
+  }
+ ],
+ "decisions": [
+  {
+   "month": "2025-12",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": null,
+   "champion_after": null,
+   "challenger_version": null,
+   "details": {
+    "waiting_for_labels": "0/4 labelled months"
+   }
+  },
+  {
+   "month": "2026-01",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": null,
+   "champion_after": null,
+   "challenger_version": null,
+   "details": {
+    "waiting_for_labels": "1/4 labelled months"
+   }
+  },
+  {
+   "month": "2026-02",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": null,
+   "champion_after": null,
+   "challenger_version": null,
+   "details": {
+    "waiting_for_labels": "2/4 labelled months"
+   }
+  },
+  {
+   "month": "2026-03",
+   "action": "halted",
+   "reasons": [
+    "data_quality",
+    "null_rate_max",
+    "monthly_fee_non_negative"
+   ],
+   "champion_before": null,
+   "champion_after": null,
+   "challenger_version": null,
+   "details": {
+    "note": "no training and no scoring on a snapshot that failed the gate; last month's scores stay in use"
+   }
+  },
+  {
+   "month": "2026-04",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": null,
+   "champion_after": null,
+   "challenger_version": null,
+   "details": {
+    "waiting_for_labels": "3/4 labelled months"
+   }
+  },
+  {
+   "month": "2026-05",
+   "action": "promoted",
+   "reasons": [
+    "no_champion"
+   ],
+   "champion_before": null,
+   "champion_after": "1",
+   "challenger_version": "1",
+   "details": {
+    "run_id": "a51697eaee324f378a08066a354cc42b",
+    "champion_auc": null,
+    "train_months": [
+     "2025-12",
+     "2026-01",
+     "2026-02"
+    ],
+    "holdout_month": "2026-04",
+    "challenger_auc": 0.8098
+   }
+  },
+  {
+   "month": "2026-06",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": "1",
+   "champion_after": "1",
+   "challenger_version": null,
+   "details": {}
+  },
+  {
+   "month": "2026-07",
+   "action": "rejected",
+   "reasons": [
+    "data_drift"
+   ],
+   "champion_before": "1",
+   "champion_after": "1",
+   "challenger_version": "2",
+   "details": {
+    "run_id": "01c0e315b65f4c839500692243a08c73",
+    "max_psi": 0.3151,
+    "psi_feature": "plan",
+    "champion_auc": 0.7819,
+    "train_months": [
+     "2026-02",
+     "2026-04",
+     "2026-05"
+    ],
+    "holdout_month": "2026-06",
+    "challenger_auc": 0.7816
+   }
+  },
+  {
+   "month": "2026-08",
+   "action": "promoted",
+   "reasons": [
+    "performance_decay",
+    "data_drift"
+   ],
+   "champion_before": "1",
+   "champion_after": "3",
+   "challenger_version": "3",
+   "details": {
+    "run_id": "750e8a5ed5df4d5880fc6f31023d5a44",
+    "max_psi": 0.2983,
+    "psi_feature": "plan",
+    "champion_auc": 0.7796,
+    "realised_auc": 0.7796,
+    "train_months": [
+     "2026-04",
+     "2026-05",
+     "2026-06"
+    ],
+    "holdout_month": "2026-07",
+    "challenger_auc": 0.819,
+    "validation_auc": 0.8098
+   }
+  },
+  {
+   "month": "2026-09",
+   "action": "promoted",
+   "reasons": [
+    "data_drift"
+   ],
+   "champion_before": "3",
+   "champion_after": "4",
+   "challenger_version": "4",
+   "details": {
+    "run_id": "810541f35a964806b5634b711c40f4cc",
+    "max_psi": 0.2776,
+    "psi_feature": "plan",
+    "champion_auc": 0.8188,
+    "train_months": [
+     "2026-05",
+     "2026-06",
+     "2026-07"
+    ],
+    "holdout_month": "2026-08",
+    "challenger_auc": 0.8249
+   }
+  },
+  {
+   "month": "2026-10",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": "4",
+   "champion_after": "4",
+   "challenger_version": null,
+   "details": {}
+  },
+  {
+   "month": "2026-11",
+   "action": "keep",
+   "reasons": [],
+   "champion_before": "4",
+   "champion_after": "4",
+   "challenger_version": null,
+   "details": {}
+  }
+ ],
+ "realised": [
+  {
+   "month": "2026-05",
+   "policy": "auto",
+   "model_version": "1",
+   "auc": 0.8123,
+   "pr_auc": 0.2529,
+   "top_decile_lift": 5.197,
+   "base_rate": 0.0378,
+   "n": 63060
+  },
+  {
+   "month": "2026-05",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.8123,
+   "pr_auc": 0.2529,
+   "top_decile_lift": 5.197,
+   "base_rate": 0.0378,
+   "n": 63060
+  },
+  {
+   "month": "2026-06",
+   "policy": "auto",
+   "model_version": "1",
+   "auc": 0.7819,
+   "pr_auc": 0.2854,
+   "top_decile_lift": 4.285,
+   "base_rate": 0.0624,
+   "n": 63690
+  },
+  {
+   "month": "2026-06",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.7819,
+   "pr_auc": 0.2854,
+   "top_decile_lift": 4.285,
+   "base_rate": 0.0624,
+   "n": 63690
+  },
+  {
+   "month": "2026-07",
+   "policy": "auto",
+   "model_version": "1",
+   "auc": 0.7796,
+   "pr_auc": 0.2721,
+   "top_decile_lift": 4.3,
+   "base_rate": 0.058,
+   "n": 64326
+  },
+  {
+   "month": "2026-07",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.7796,
+   "pr_auc": 0.2721,
+   "top_decile_lift": 4.3,
+   "base_rate": 0.058,
+   "n": 64326
+  },
+  {
+   "month": "2026-08",
+   "policy": "auto",
+   "model_version": "3",
+   "auc": 0.8188,
+   "pr_auc": 0.3176,
+   "top_decile_lift": 4.783,
+   "base_rate": 0.0588,
+   "n": 64969
+  },
+  {
+   "month": "2026-08",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.7818,
+   "pr_auc": 0.2787,
+   "top_decile_lift": 4.369,
+   "base_rate": 0.0588,
+   "n": 64969
+  },
+  {
+   "month": "2026-09",
+   "policy": "auto",
+   "model_version": "4",
+   "auc": 0.8272,
+   "pr_auc": 0.3324,
+   "top_decile_lift": 4.998,
+   "base_rate": 0.0553,
+   "n": 65618
+  },
+  {
+   "month": "2026-09",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.782,
+   "pr_auc": 0.2809,
+   "top_decile_lift": 4.482,
+   "base_rate": 0.0553,
+   "n": 65618
+  },
+  {
+   "month": "2026-10",
+   "policy": "auto",
+   "model_version": "4",
+   "auc": 0.83,
+   "pr_auc": 0.3288,
+   "top_decile_lift": 4.984,
+   "base_rate": 0.0544,
+   "n": 66274
+  },
+  {
+   "month": "2026-10",
+   "policy": "static",
+   "model_version": "1",
+   "auc": 0.7891,
+   "pr_auc": 0.2893,
+   "top_decile_lift": 4.634,
+   "base_rate": 0.0544,
+   "n": 66274
+  }
+ ],
+ "oracle_auc": {
+  "2025-12": 0.819,
+  "2026-01": 0.8214,
+  "2026-02": 0.8101,
+  "2026-03": 0.8268,
+  "2026-04": 0.8144,
+  "2026-05": 0.8185,
+  "2026-06": 0.8427,
+  "2026-07": 0.8367,
+  "2026-08": 0.8357,
+  "2026-09": 0.8382,
+  "2026-10": 0.8405,
+  "2026-11": 0.8353
+ },
+ "registry": [
+  {
+   "version": "1",
+   "aliases": [],
+   "tags": {
+    "holdout_auc": "0.8098",
+    "holdout_month": "2026-04",
+    "train_months": "2025-12,2026-01,2026-02",
+    "trained_in_month": "2026-05"
+   },
+   "run_id": "a51697eaee324f378a08066a354cc42b"
+  },
+  {
+   "version": "2",
+   "aliases": [],
+   "tags": {
+    "holdout_auc": "0.7816",
+    "holdout_month": "2026-06",
+    "train_months": "2026-02,2026-04,2026-05",
+    "trained_in_month": "2026-07",
+    "rejected_reason": "auc 0.7816 < champion 0.7819 + 0.002"
+   },
+   "run_id": "01c0e315b65f4c839500692243a08c73"
+  },
+  {
+   "version": "3",
+   "aliases": [],
+   "tags": {
+    "holdout_auc": "0.819",
+    "holdout_month": "2026-07",
+    "train_months": "2026-04,2026-05,2026-06",
+    "trained_in_month": "2026-08"
+   },
+   "run_id": "750e8a5ed5df4d5880fc6f31023d5a44"
+  },
+  {
+   "version": "4",
+   "aliases": [],
+   "tags": {
+    "holdout_auc": "0.8249",
+    "holdout_month": "2026-08",
+    "train_months": "2026-05,2026-06,2026-07",
+    "trained_in_month": "2026-09"
+   },
+   "run_id": "810541f35a964806b5634b711c40f4cc"
+  }
+ ],
+ "task_seconds": [
+  {
+   "month": "2025-12",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.58
+  },
+  {
+   "month": "2025-12",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.19
+  },
+  {
+   "month": "2025-12",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.14
+  },
+  {
+   "month": "2025-12",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2025-12",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2025-12",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.11
+  },
+  {
+   "month": "2025-12",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.11
+  },
+  {
+   "month": "2025-12",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2025-12",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2025-12",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-01",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.86
+  },
+  {
+   "month": "2026-01",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.19
+  },
+  {
+   "month": "2026-01",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-01",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-01",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-01",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.09
+  },
+  {
+   "month": "2026-01",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-01",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-01",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-01",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-02",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.84
+  },
+  {
+   "month": "2026-02",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-02",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-02",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-02",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-02",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.09
+  },
+  {
+   "month": "2026-02",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-02",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-02",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-02",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-03",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.83
+  },
+  {
+   "month": "2026-03",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-03",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-03",
+   "task": "checks_passed",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-03",
+   "task": "check_drift",
+   "state": "skipped",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-03",
+   "task": "decide",
+   "state": "skipped",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-03",
+   "task": "keep_champion",
+   "state": "skipped",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-03",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-03",
+   "task": "score",
+   "state": "skipped",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-03",
+   "task": "halt_month",
+   "state": "success",
+   "seconds": 0.09
+  },
+  {
+   "month": "2026-04",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.85
+  },
+  {
+   "month": "2026-04",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-04",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-04",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-04",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-04",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.1
+  },
+  {
+   "month": "2026-04",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-04",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-04",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-04",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.15
+  },
+  {
+   "month": "2026-05",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.85
+  },
+  {
+   "month": "2026-05",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-05",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-05",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-05",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-05",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.09
+  },
+  {
+   "month": "2026-05",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-05",
+   "task": "keep_champion",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-05",
+   "task": "train_and_promote",
+   "state": "success",
+   "seconds": 3.69
+  },
+  {
+   "month": "2026-05",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.54
+  },
+  {
+   "month": "2026-06",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.94
+  },
+  {
+   "month": "2026-06",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-06",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.24
+  },
+  {
+   "month": "2026-06",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-06",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-06",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-06",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-06",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-06",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-06",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.38
+  },
+  {
+   "month": "2026-07",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.85
+  },
+  {
+   "month": "2026-07",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-07",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.24
+  },
+  {
+   "month": "2026-07",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-07",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-07",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-07",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.16
+  },
+  {
+   "month": "2026-07",
+   "task": "keep_champion",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-07",
+   "task": "train_and_promote",
+   "state": "success",
+   "seconds": 6.37
+  },
+  {
+   "month": "2026-07",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.39
+  },
+  {
+   "month": "2026-08",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.86
+  },
+  {
+   "month": "2026-08",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-08",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.24
+  },
+  {
+   "month": "2026-08",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-08",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-08",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-08",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-08",
+   "task": "keep_champion",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-08",
+   "task": "train_and_promote",
+   "state": "success",
+   "seconds": 3.43
+  },
+  {
+   "month": "2026-08",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.41
+  },
+  {
+   "month": "2026-09",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.85
+  },
+  {
+   "month": "2026-09",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.23
+  },
+  {
+   "month": "2026-09",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-09",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-09",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-09",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-09",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-09",
+   "task": "keep_champion",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-09",
+   "task": "train_and_promote",
+   "state": "success",
+   "seconds": 3.47
+  },
+  {
+   "month": "2026-09",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.43
+  },
+  {
+   "month": "2026-10",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.85
+  },
+  {
+   "month": "2026-10",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.25
+  },
+  {
+   "month": "2026-10",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.19
+  },
+  {
+   "month": "2026-10",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-10",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-10",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-10",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-10",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-10",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-10",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.4
+  },
+  {
+   "month": "2026-11",
+   "task": "land",
+   "state": "success",
+   "seconds": 0.86
+  },
+  {
+   "month": "2026-11",
+   "task": "realise_last_month",
+   "state": "success",
+   "seconds": 0.24
+  },
+  {
+   "month": "2026-11",
+   "task": "dq_gate",
+   "state": "success",
+   "seconds": 0.18
+  },
+  {
+   "month": "2026-11",
+   "task": "halt_month",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-11",
+   "task": "checks_passed",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-11",
+   "task": "check_drift",
+   "state": "success",
+   "seconds": 0.22
+  },
+  {
+   "month": "2026-11",
+   "task": "decide",
+   "state": "success",
+   "seconds": 0.17
+  },
+  {
+   "month": "2026-11",
+   "task": "train_and_promote",
+   "state": "skipped",
+   "seconds": null
+  },
+  {
+   "month": "2026-11",
+   "task": "keep_champion",
+   "state": "success",
+   "seconds": 0.0
+  },
+  {
+   "month": "2026-11",
+   "task": "score",
+   "state": "success",
+   "seconds": 0.54
+  }
+ ],
+ "task_seconds_per_month": {
+  "2025-12": 1.28,
+  "2026-01": 1.61,
+  "2026-02": 1.57,
+  "2026-03": 1.24,
+  "2026-04": 1.58,
+  "2026-05": 5.67,
+  "2026-06": 2.13,
+  "2026-07": 8.41,
+  "2026-08": 5.51,
+  "2026-09": 5.54,
+  "2026-10": 2.09,
+  "2026-11": 2.21
+ }
+}
