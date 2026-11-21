@@ -21,7 +21,6 @@ Until a champion exists, `/predict` returns 503.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import queue
@@ -37,6 +36,8 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from mlflow import MlflowClient
 from pydantic import BaseModel, Field
+
+from mlops.routing import bucket
 
 NAME = os.environ.get("MODEL_NAME", "churn")
 ALIAS = os.environ.get("MODEL_ALIAS", "champion")
@@ -58,11 +59,6 @@ CREATE TABLE IF NOT EXISTS predictions_log (id BIGSERIAL PRIMARY KEY, ts TIMESTA
     shadow_version TEXT, shadow_probability DOUBLE PRECISION, latency_ms DOUBLE PRECISION, error TEXT);
 CREATE INDEX IF NOT EXISTS predictions_log_ts ON predictions_log (ts);
 """
-
-
-def bucket(subscriber_id: str) -> float:
-    """Stable position in [0, 100) for a subscriber id (sticky routing)."""
-    return int(hashlib.sha256(subscriber_id.encode()).hexdigest()[:8], 16) % 10_000 / 100
 
 
 def _load(client: MlflowClient, alias: str, key: str) -> None:
