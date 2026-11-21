@@ -27,3 +27,9 @@ logs: ## Tail logs
 
 test: ## Unit tests (data generator, quality gate, drift, model) inside the Airflow container
 	$(AF) python -m pytest -q -p no:cacheprovider tests
+
+backfill: ## Unpause churn_monthly; catchup runs the 12 months in order (about 10 minutes)
+	docker exec mf-mlops-airflow-scheduler airflow dags unpause churn_monthly
+
+status: ## Run states of churn_monthly
+	docker exec mf-mlops-airflow-scheduler airflow dags list-runs -d churn_monthly -o table
