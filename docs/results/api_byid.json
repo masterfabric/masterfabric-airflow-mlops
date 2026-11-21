@@ -1,0 +1,25 @@
+{
+  "predict_body_1": {
+    "p50_ms": 2.9,
+    "p95_ms": 3.11,
+    "n": 200
+  },
+  "predict_by_id_1": {
+    "p50_ms": 5.35,
+    "p95_ms": 6.38,
+    "n": 200
+  },
+  "predict_body_100": {
+    "p50_ms": 4.58,
+    "p95_ms": 4.98,
+    "n": 200
+  },
+  "predict_by_id_100": {
+    "p50_ms": 11.73,
+    "p95_ms": 12.35,
+    "n": 200
+  },
+  "max_abs_score_diff_byid_vs_body": 0.0,
+  "compared_scores": 2000,
+  "model_version": "5"
+}
