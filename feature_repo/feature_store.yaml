@@ -1,0 +1,12 @@
+# Feast feature repository for the churn model. Offline store: Parquet written by the monthly DAG.
+# Online store: Valkey (Redis protocol) on the Compose network. The registry file sits next to the data
+# (feature_repo/data/, git-ignored) so the Airflow container and the Feast containers share it.
+project: mf_churn
+registry: data/registry.db
+provider: local
+online_store:
+  type: redis
+  connection_string: online-store:6379
+offline_store:
+  type: file
+entity_key_serialization_version: 3
