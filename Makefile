@@ -33,3 +33,6 @@ backfill: ## Unpause churn_monthly; catchup runs the 12 months in order (about 1
 
 status: ## Run states of churn_monthly
 	docker exec mf-mlops-airflow-scheduler airflow dags list-runs -d churn_monthly -o table
+
+report: ## Collect decisions, realised AUC, registry and task durations into docs/results/backfill.json
+	$(AF) python scripts/report.py
