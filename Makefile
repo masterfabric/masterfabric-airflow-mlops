@@ -4,7 +4,7 @@ COMPOSE := docker compose --env-file .env -f docker/compose.yaml
 AF      := docker exec -w /opt/airflow/repo mf-mlops-airflow-scheduler
 PY      ?= .venv/bin/python
 
-.PHONY: help env up down ps logs
+.PHONY: help env up down ps logs test backfill status report demo
 
 help: ## Show targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-14s\033[0m %s\n",$$1,$$2}'
@@ -36,3 +36,7 @@ status: ## Run states of churn_monthly
 
 report: ## Collect decisions, realised AUC, registry and task durations into docs/results/backfill.json
 	$(AF) python scripts/report.py
+
+demo: ## Time the scoring API and measure a champion rollback/restore
+	$(AF) python scripts/api_demo.py
+	$(AF) python scripts/hotswap_demo.py
