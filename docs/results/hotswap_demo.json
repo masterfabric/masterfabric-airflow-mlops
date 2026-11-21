@@ -1,0 +1,13 @@
+{
+  "refresh_interval_s": 15,
+  "start_version": "4",
+  "rollback": {
+    "to": "3",
+    "seconds_until_served": 3.41
+  },
+  "restore": {
+    "to": "4",
+    "seconds_until_served": 15.27
+  },
+  "final_version_served": "4"
+}
