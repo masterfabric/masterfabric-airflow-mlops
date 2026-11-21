@@ -1,0 +1,6 @@
+fastapi==0.115.12
+uvicorn==0.34.2
+mlflow-skinny==2.22.0
+scikit-learn==1.6.1
+pandas==2.2.3
+pyarrow==17.0.0

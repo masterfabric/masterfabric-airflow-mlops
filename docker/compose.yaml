@@ -1,0 +1,155 @@
+# MasterFabric Airflow MLOps: Airflow (LocalExecutor) + MLflow + PostgreSQL + S3 storage + scoring API.
+# Every port is bound to 127.0.0.1. A laptop lab, not a hardened deployment.
+name: mf-mlops
+
+x-s3-env: &s3-env
+  AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+  AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+  AWS_DEFAULT_REGION: ${S3_REGION}
+
+x-airflow: &airflow
+  build: ./airflow
+  image: mf-mlops/airflow:2.10.5-ml
+  environment: &airflow-env
+    <<: *s3-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "15"
+    AIRFLOW__CORE__PARALLELISM: "8"
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    MLOPS_DB: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/mlops
+    S3_ENDPOINT: http://s3:9000
+    PYTHONPATH: /opt/airflow/repo
+  volumes:
+    - ../dags:/opt/airflow/dags
+    - ..:/opt/airflow/repo
+    - airflow-logs:/opt/airflow/logs
+  depends_on: &airflow-deps
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mf-mlops-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: airflow
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d airflow"]
+      interval: 5s
+      retries: 30
+
+  s3:
+    image: rustfs/rustfs:1.0.6
+    container_name: mf-mlops-s3
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY}
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+    volumes:
+      - s3-data:/data
+    ports:
+      - "127.0.0.1:${PORT_S3_API}:9000"
+      - "127.0.0.1:${PORT_S3_CONSOLE}:9001"
+
+  s3-init:
+    image: amazon/aws-cli:latest
+    container_name: mf-mlops-s3-init
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_REGION: ${S3_REGION}
+      AWS_DEFAULT_REGION: ${S3_REGION}
+    entrypoint: ["/bin/sh", "/init/create-buckets.sh"]
+    volumes:
+      - ./s3:/init:ro
+
+  # Tracking server + model registry. Backend store in PostgreSQL; artifacts in S3, proxied through
+  # the server (--serve-artifacts) so clients never need S3 credentials.
+  mlflow:
+    build: ./mlflow
+    image: mf-mlops/mlflow:2.22.0
+    container_name: mf-mlops-mlflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *s3-env
+      MLFLOW_S3_ENDPOINT_URL: http://s3:9000
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/mlflow
+      --artifacts-destination s3://mlflow/artifacts --serve-artifacts
+    ports:
+      - "127.0.0.1:${PORT_MLFLOW}:5000"
+
+  airflow-init:
+    <<: *airflow
+    container_name: mf-mlops-airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate &&
+        airflow users create --role Admin --username "${AIRFLOW_ADMIN_USER}" --password "${AIRFLOW_ADMIN_PASSWORD}" \
+          --firstname Lab --lastname Admin --email admin@example.invalid || true
+
+  airflow-webserver:
+    <<: *airflow
+    container_name: mf-mlops-airflow-web
+    command: webserver
+    depends_on:
+      <<: *airflow-deps
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${PORT_AIRFLOW}:8080"
+
+  airflow-scheduler:
+    <<: *airflow
+    container_name: mf-mlops-airflow-scheduler
+    command: scheduler
+    depends_on:
+      <<: *airflow-deps
+      airflow-init:
+        condition: service_completed_successfully
+      mlflow:
+        condition: service_started
+
+  # Online scoring: serves whichever model version holds the "champion" alias, and picks up a new
+  # champion without a restart.
+  api:
+    build:
+      context: ..
+      dockerfile: serving/Dockerfile
+    image: mf-mlops/churn-api:dev
+    container_name: mf-mlops-api
+    depends_on:
+      - mlflow
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_NAME: churn
+      MODEL_ALIAS: champion
+      REFRESH_SECONDS: "15"
+    ports:
+      - "127.0.0.1:${PORT_API}:8000"
+
+volumes:
+  pg-data:
+  s3-data:
+  airflow-logs:
