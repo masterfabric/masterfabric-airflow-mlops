@@ -1,0 +1,79 @@
+{
+  "point_in_time_vs_direct": {
+    "months": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "feast_seconds": 3.73,
+    "direct_seconds": 0.09,
+    "rows": 194913,
+    "rows_missing": 0,
+    "rows_with_any_diff": 0,
+    "share_with_any_diff": 0.0
+  },
+  "naive_latest_join": {
+    "rows": 194913,
+    "rows_missing": 0,
+    "rows_with_any_diff": 194913,
+    "share_with_any_diff": 1.0,
+    "churners_missing_in_latest": 11179,
+    "churners": 11179,
+    "rows_all_features_null": 29878,
+    "share_diff_by_feature": {
+      "tenure_months": 1.0,
+      "monthly_fee": 0.9958,
+      "data_gb": 0.9987,
+      "voice_min": 0.9981,
+      "dropped_call_rate": 0.9964,
+      "complaints_90d": 0.5586,
+      "support_calls_30d": 0.564,
+      "payment_delay_days": 0.3325,
+      "contract_months_left": 0.7426,
+      "device_age_months": 0.9999,
+      "family_lines": 0.1533,
+      "discount_pct": 0.1533,
+      "nps": 0.99,
+      "plan": 0.1533,
+      "region": 0.1533,
+      "device_5g": 0.1993
+    }
+  },
+  "halted_month_2026_03": {
+    "rows": 61818,
+    "rows_missing": 2858,
+    "rows_with_any_diff": 2858,
+    "share_with_any_diff": 0.0462,
+    "null_feature_rows": 2858
+  },
+  "online_vs_offline": {
+    "month": "2026-11",
+    "rows": 1000,
+    "rows_missing": 0,
+    "rows_with_any_diff": 0,
+    "share_with_any_diff": 0.0
+  },
+  "online_latency": {
+    "http_1": {
+      "p50_ms": 1.1,
+      "p95_ms": 1.22,
+      "n": 300
+    },
+    "sdk_1": {
+      "p50_ms": 1.69,
+      "p95_ms": 1.8,
+      "n": 300
+    },
+    "http_100": {
+      "p50_ms": 6.47,
+      "p95_ms": 7.95,
+      "n": 300
+    },
+    "sdk_100": {
+      "p50_ms": 4.61,
+      "p95_ms": 4.83,
+      "n": 300
+    }
+  },
+  "note": "Latency measured from the Airflow container over the compose network (Colima, M4 Pro)."
+}
