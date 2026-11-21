@@ -11,6 +11,9 @@ Every REFRESH_SECONDS the service resolves two aliases in the MLflow registry:
   guardrails can compare the two models on identical inputs. A canary that raises falls back to the
   champion and the request is logged as a canary error.
 
+`latency_ms` in the log is the inference time of the model that answered (champion or canary), so the
+latency guardrail compares the two models rather than the canary path's extra shadow call.
+
 Each scored subscriber is written asynchronously to the Postgres table `predictions_log` (variant,
 model version, probability, shadow probability, latency); logging never blocks or fails a request.
 `/predict/by-id` fetches features from the Feast feature server instead of taking them in the body.
@@ -182,21 +185,25 @@ def _score(df: pd.DataFrame) -> dict:
     ids = df.subscriber_id.to_numpy()
     to_canary = np.array([bucket(i) < pct for i in ids]) if can is not None and pct > 0 else np.zeros(len(df), bool)
     champ_p = _proba(champ, X)                   # champion scores everyone: answer or shadow
+    champ_ms = (time.perf_counter() - t0) * 1000
+    lat = np.full(len(df), champ_ms)
     out_p, variant, version, err = champ_p.copy(), np.full(len(df), "champion", object), np.full(len(df), v, object), None
     if to_canary.any():
+        t1 = time.perf_counter()
         try:
             out_p[to_canary] = _proba(can, X[to_canary])
             variant[to_canary], version[to_canary] = "canary", cv
         except Exception as e:               # fall back to the champion, but count it against the canary
             err = type(e).__name__
             variant[to_canary] = "canary_fallback"
+        lat[to_canary] = (time.perf_counter() - t1) * 1000    # the canary model's own inference time
     ms = (time.perf_counter() - t0) * 1000
     if DB:
         rid, now = uuid.uuid4().hex[:12], datetime.now(timezone.utc)
         for i in range(len(df)):
             shadow = to_canary[i]
             row = (now, rid, ids[i], variant[i], version[i], float(out_p[i]), v if shadow else None,
-                   float(champ_p[i]) if shadow else None, ms, err if shadow else None)
+                   float(champ_p[i]) if shadow else None, float(lat[i]), err if shadow else None)
             try:
                 _log.put_nowait(row)
             except queue.Full:
