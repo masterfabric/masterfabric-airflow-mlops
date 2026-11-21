@@ -200,6 +200,7 @@ services:
     image: mf-mlops/monitor:dev
     container_name: mf-mlops-evidently-ui
     profiles: ["monitoring"]
+    user: "50000:0"   # same uid as Airflow, which writes runs into the shared workspace volume
     command: ["evidently", "ui", "--workspace", "/ws", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
       - evidently-ws:/ws
