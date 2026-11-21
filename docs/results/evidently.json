@@ -28,7 +28,7 @@
       ],
       "in_house_psi_over_025": [],
       "trigger_agrees": false,
-      "seconds": 0.97
+      "seconds": 0.99
     },
     {
       "month": "2026-07",
@@ -64,7 +64,7 @@
         "plan"
       ],
       "trigger_agrees": true,
-      "seconds": 0.99
+      "seconds": 0.98
     },
     {
       "month": "2026-08",
@@ -101,7 +101,7 @@
         "plan"
       ],
       "trigger_agrees": true,
-      "seconds": 1.0
+      "seconds": 0.98
     },
     {
       "month": "2026-09",
@@ -158,7 +158,7 @@
       "evidently_psi_over_025": [],
       "in_house_psi_over_025": [],
       "trigger_agrees": true,
-      "seconds": 0.98
+      "seconds": 1.0
     },
     {
       "month": "2026-11",
@@ -185,7 +185,7 @@
       "evidently_psi_over_025": [],
       "in_house_psi_over_025": [],
       "trigger_agrees": true,
-      "seconds": 1.01
+      "seconds": 1.0
     }
   ],
   "summary": {
