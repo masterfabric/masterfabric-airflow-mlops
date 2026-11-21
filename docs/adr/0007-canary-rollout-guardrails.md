@@ -41,6 +41,14 @@ and committed **before** the rollout experiment was run, so the thresholds were 
 
 ## Consequences
 
-- See README "Canary and A/B rollout" for the measured run (one good, one deliberately broken candidate).
+- Measured (replay of 66,274 subscribers of 2026-10 per stage, thresholds unchanged from this ADR):
+  - v6, trained on shuffled labels: rolled back at 5 % on rank agreement (Spearman −0.088). Its mean
+    prediction was within 11 % of the champion's, so the mean guardrail alone would have let it through.
+    The API reported the canary gone 2.9 s after the alias was removed.
+  - v5, the normal recipe one month newer: passed 5/25/50 % (Spearman 0.969, routed share 5.10 /
+    25.20 / 50.05 %, no subscriber changed variant, 0 errors). Paired ΔAUC on 33,173 canary subscribers
+    −0.0007, 95 % CI [−0.0031, +0.0016] → non-inferior → promoted; v5 answered 7.8 s later.
+  - Unpaired arms at 50 % differ by 0.0105 AUC (0.8347 vs 0.8242) only because the two halves of the
+    population differ; on the same rows the models are within 0.001.
 - The replay uses the latest month with labels; in production the labels arrive a month after the
   canary, so the AUC step would be a second, delayed gate while the guardrails run live.

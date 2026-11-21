@@ -12,3 +12,6 @@ to see where this lab deliberately differs and why.
 | [0004](0004-retrain-triggers.md) | Retrain on evidence: decay, drift or age |
 | [0005](0005-sliding-window-holdout.md) | Sliding 3-month window, newest labelled month as holdout, minimum gain |
 | [0006](0006-serving-hot-swap.md) | Online API resolves @champion and hot-swaps without a restart |
+| [0007](0007-canary-rollout-guardrails.md) | Champion changes go through a sticky canary with pre-declared guardrails |
+| [0008](0008-evidently-observes-psi-decides.md) | Evidently reports drift and quality; the in-house PSI still decides |
+| [0009](0009-feast-point-in-time-features.md) | Feast for point-in-time training frames and an online store |
