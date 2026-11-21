@@ -1,0 +1,14 @@
+# Architecture decision records
+
+Each record states the context, the options that were weighed, the decision and its measured
+consequences. They are written for a reader who knows the Cloudera world (CDE Airflow, CML) and wants
+to see where this lab deliberately differs and why.
+
+| # | Decision |
+|---|---|
+| [0001](0001-airflow-monthly-catchup.md) | One Airflow run per month, backfilled in order with catchup |
+| [0002](0002-data-quality-gate-halts.md) | A blocking data-quality gate that halts the month |
+| [0003](0003-mlflow-registry-aliases.md) | MLflow registry aliases as the deployment contract |
+| [0004](0004-retrain-triggers.md) | Retrain on evidence: decay, drift or age |
+| [0005](0005-sliding-window-holdout.md) | Sliding 3-month window, newest labelled month as holdout, minimum gain |
+| [0006](0006-serving-hot-swap.md) | Online API resolves @champion and hot-swaps without a restart |
