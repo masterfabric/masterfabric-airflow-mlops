@@ -16,6 +16,7 @@ import json
 import os
 import time
 import warnings
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 os.environ.setdefault("DO_NOT_TRACK", "1")
@@ -38,6 +39,10 @@ CREATE TABLE IF NOT EXISTS evidently_quality (month TEXT PRIMARY KEY, model_vers
 """
 
 
+def _month_start(month: str) -> datetime:
+    return datetime.strptime(month, "%Y-%m")
+
+
 def _definition() -> DataDefinition:
     return DataDefinition(numerical_columns=list(data.FEATURES_NUM), categorical_columns=list(data.FEATURES_CAT))
 
@@ -49,7 +54,34 @@ def _project(ws):
     p = ws.create_project(PROJECT)
     p.description = "Monthly feature drift vs the champion's training sample, and realised quality of last month's scores"
     p.save()
+    _dashboard(p)
     return p
+
+
+def _dashboard(p) -> None:
+    """Two time-series panels; each run is stamped with its business month, so the x-axis is the month."""
+    from evidently.sdk.models import PanelMetric
+    from evidently.sdk.panels import bar_plot_panel, line_plot_panel
+    p.dashboard.add_panel(bar_plot_panel(
+        title="Drifted columns per month (Evidently default: Wasserstein / Jensen-Shannon > 0.1)",
+        values=[PanelMetric(legend="drifted columns", metric="DriftedColumnsCount", tags=["drift"],
+                            metric_labels={"value_type": "count"})],
+        description="Monitoring only: the DAG retrains on in-house PSI > 0.25 (ADR 0004)", size="full"))
+    p.dashboard.add_panel(line_plot_panel(
+        title="Realised ROC AUC of each month's champion scores",
+        values=[PanelMetric(legend="ROC AUC", metric="RocAuc", tags=["quality"])], size="full"))
+
+
+def _add_run(ws, snap, name: str) -> None:
+    """Add a run, replacing an earlier run with the same name (re-running a month stays idempotent)."""
+    pid = _project(ws).id
+    for rid in ws.list_runs(pid):
+        try:
+            if ws.get_run(pid, rid).name == name:
+                ws.delete_run(pid, rid)
+        except Exception:                               # noqa: BLE001  unreadable run: leave it
+            pass
+    ws.add_run(pid, snap, include_data=False, name=name)
 
 
 def _value_drift(snapshot_dict: dict) -> tuple[dict, dict]:
@@ -89,7 +121,8 @@ def drift_report(month: str, ws=None) -> dict | None:
     dd = _definition()
     t0 = time.perf_counter()
     snap = Report([DataDriftPreset()]).run(Dataset.from_pandas(cur, data_definition=dd),
-                                           Dataset.from_pandas(ref, data_definition=dd))
+                                           Dataset.from_pandas(ref, data_definition=dd),
+                                           timestamp=_month_start(month), tags=["drift", f"v{v}"])
     seconds = time.perf_counter() - t0
     overall, cols = _value_drift(snap.dict())
     for c in cols.values():
@@ -100,7 +133,7 @@ def drift_report(month: str, ws=None) -> dict | None:
     _, psi_cols = _value_drift(psi_snap.dict())
     key = _put_html(snap, f"reports/evidently/drift/month={month}.html")
     if ws is not None:
-        ws.add_run(_project(ws).id, snap, include_data=False, name=f"drift {month} vs v{v}")
+        _add_run(ws, snap, f"drift {month}")
     out = {"month": month, "champion_version": v, "columns": len(cols),
            "drifted_columns": sum(c["drifted"] for c in cols.values()),
            "drifted_share": round(sum(c["drifted"] for c in cols.values()) / len(cols), 4),
@@ -118,7 +151,8 @@ def quality_report(month: str, ws=None) -> dict | None:
     s = store.get(key).merge(store.get(store.labels_key(month)), on="subscriber_id")
     frame = pd.DataFrame({"target": s[data.LABEL].astype(int), "prediction": s.churn_probability})
     dd = DataDefinition(classification=[BinaryClassification(target="target", prediction_probas="prediction")])
-    snap = Report([ClassificationPreset()]).run(Dataset.from_pandas(frame, data_definition=dd), None)
+    snap = Report([ClassificationPreset()]).run(Dataset.from_pandas(frame, data_definition=dd), None,
+                                                timestamp=_month_start(month), tags=["quality"])
     metrics = {}
     for m in snap.dict()["metrics"]:
         name = m["config"]["type"].split(":")[-1]
@@ -126,7 +160,7 @@ def quality_report(month: str, ws=None) -> dict | None:
             metrics[name] = round(float(m["value"]), 4)
     rkey = _put_html(snap, f"reports/evidently/quality/month={month}.html")
     if ws is not None:
-        ws.add_run(_project(ws).id, snap, include_data=False, name=f"quality {month} v{s.model_version.iloc[0]}")
+        _add_run(ws, snap, f"quality {month}")
     ih = db.query("SELECT auc FROM realised WHERE month=%s AND policy='auto'", (month,))
     out = {"month": month, "model_version": str(s.model_version.iloc[0]), "roc_auc": metrics.get("RocAuc"),
            "in_house_auc": ih[0]["auc"] if ih else None, "metrics": metrics, "report_key": rkey}
