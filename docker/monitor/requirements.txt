@@ -1,0 +1,9 @@
+# Monitoring and feature-store stack. Kept out of the Airflow environment (Feast needs NumPy 2, Airflow's
+# image pins NumPy 1.26): the Airflow image installs it into /home/airflow/mf-venv, the monitor image system-wide.
+feast[redis,grpcio]==0.68.0
+evidently==0.7.23
+pandas==2.2.3
+pyarrow==17.0.0
+boto3==1.37.38
+psycopg2-binary==2.9.10
+scikit-learn==1.6.1
