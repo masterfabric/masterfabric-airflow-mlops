@@ -12,6 +12,7 @@ import time
 from datetime import datetime, timezone
 
 import mlflow
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from mlflow import MlflowClient
@@ -60,7 +61,7 @@ class Subscriber(BaseModel):
     contract_months_left: int = Field(ge=0)
     device_age_months: int = Field(ge=0)
     family_lines: int = Field(ge=0)
-    discount_pct: float = Field(ge=0, le=100)
+    discount_pct: int = Field(ge=0, le=100)   # the model signature is integer; MLflow enforces it
     nps: float = Field(ge=-100, le=100)
     plan: str
     region: str
@@ -84,6 +85,8 @@ def predict(subs: list[Subscriber]) -> dict:
     if m is None:
         raise HTTPException(503, "no champion model registered yet")
     df = pd.DataFrame([s.model_dump() for s in subs])
-    proba = m.predict(df.drop(columns=["subscriber_id"]))
+    proba = np.asarray(m.predict(df.drop(columns=["subscriber_id"])))
+    if proba.ndim == 2:                      # pyfunc wraps predict_proba: column 1 is P(churn)
+        proba = proba[:, 1]
     return {"model_version": version,
             "scores": [{"subscriber_id": s, "churn_probability": round(float(p), 5)} for s, p in zip(df.subscriber_id, proba)]}
