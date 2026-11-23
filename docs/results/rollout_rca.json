@@ -1,0 +1,77 @@
+{
+  "month_replayed": "2026-10",
+  "subscribers": 66274,
+  "batch": 50,
+  "workers": 4,
+  "stages_pct": [
+    5,
+    25,
+    50
+  ],
+  "limits": {
+    "error_rate": 0.005,
+    "latency_factor": 1.5,
+    "latency_slack_ms": 5.0,
+    "spearman_min": 0.8,
+    "mean_rel_diff_max": 0.25,
+    "share_tolerance_pts": 1.5,
+    "auc_ni_margin": -0.005
+  },
+  "candidates": [
+    {
+      "version": "6",
+      "role": "rollout_candidate_broken",
+      "champion_before": "5",
+      "canary_load_s": 5.43,
+      "stages": [
+        {
+          "rows": 66274,
+          "canary_rows": 3381,
+          "routed_share_pct": 5.1,
+          "error_rate": 0.0,
+          "canary_p95_ms": 6.0,
+          "champion_p95_ms": 27.45,
+          "spearman": -0.0731,
+          "canary_mean": 0.0598,
+          "shadow_mean": 0.0598,
+          "mean_rel_diff": 0.0,
+          "checks": {
+            "errors": true,
+            "latency": true,
+            "rank_agreement": false,
+            "mean_prediction": true,
+            "routed_share": true,
+            "sticky": true
+          },
+          "passed": false,
+          "target_pct": 5,
+          "picked_up_s": 15.09,
+          "replay_s": 10.41,
+          "requests": 1326,
+          "sticky": true,
+          "unpaired_ab": {
+            "champion": {
+              "n": 62893,
+              "auc": 0.83
+            },
+            "canary": {
+              "n": 3381,
+              "auc": 0.4202
+            }
+          }
+        }
+      ],
+      "rollback_s": 3.35,
+      "outcome": "rolled_back",
+      "failed_at_pct": 5,
+      "failed_checks": [
+        "rank_agreement"
+      ],
+      "rca": {
+        "root_cause": "training_labels",
+        "verdict": "the candidate was trained on labels that do not match the lake: label corruption in the training job (shuffled, misjoined or leaked from another table)",
+        "seconds": 2.1
+      }
+    }
+  ]
+}

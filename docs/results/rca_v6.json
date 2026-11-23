@@ -1,0 +1,110 @@
+{
+  "version": "6",
+  "champion": "5",
+  "month": "2026-10",
+  "stage_pct": 5,
+  "rollback_reason": "stage 5%: rank_agreement",
+  "checks": [
+    {
+      "hypothesis": "infrastructure",
+      "status": "ruled_out",
+      "finding": "canary errors 0.00%, p95 6.0 ms vs champion 27.45 ms",
+      "evidence": {
+        "error_rate": 0.0,
+        "canary_p95_ms": 6.0,
+        "champion_p95_ms": 27.45
+      }
+    },
+    {
+      "hypothesis": "population",
+      "status": "ruled_out",
+      "finding": "routed 3,381 vs 62,893 subscribers: max PSI 0.0053 (voice_min)",
+      "evidence": {
+        "max_psi": 0.0053,
+        "feature": "voice_min",
+        "routed": 3381
+      }
+    },
+    {
+      "hypothesis": "contract",
+      "status": "ruled_out",
+      "finding": "identical input signature",
+      "evidence": {
+        "inputs": 16,
+        "differences": []
+      }
+    },
+    {
+      "hypothesis": "training_inputs",
+      "status": "ruled_out",
+      "finding": "training months 2026-06,2026-07,2026-08 vs champion's 2026-06,2026-07,2026-08: max PSI 0.0000 (tenure_months)",
+      "evidence": {
+        "max_psi": 0.0,
+        "feature": "tenure_months",
+        "candidate_months": [
+          "2026-06",
+          "2026-07",
+          "2026-08"
+        ],
+        "champion_months": [
+          "2026-06",
+          "2026-07",
+          "2026-08"
+        ]
+      }
+    },
+    {
+      "hypothesis": "model_signal",
+      "status": "supported",
+      "finding": "registered holdout AUC 0.4414 on 2026-09 - no better than chance",
+      "evidence": {
+        "holdout_auc": 0.4414
+      }
+    },
+    {
+      "hypothesis": "training_labels",
+      "status": "supported",
+      "finding": "reproduction from lineage scores 0.8297 on 2026-09, the registered artefact 0.4414 (gap +0.3883); the artefact scores 0.4484 AUC on its own training months' labels",
+      "evidence": {
+        "reproduction_auc": 0.8297,
+        "registered_auc": 0.4414,
+        "gap": 0.3883,
+        "artefact_auc_on_training_labels": 0.4484,
+        "train_rows": 192985,
+        "seconds": 1.5
+      }
+    }
+  ],
+  "supported": [
+    "model_signal",
+    "training_labels"
+  ],
+  "root_cause": "training_labels",
+  "verdict": "the candidate was trained on labels that do not match the lake: label corruption in the training job (shuffled, misjoined or leaked from another table)",
+  "disagreement": {
+    "spearman_candidate_vs_champion": -0.0715,
+    "feature_rank_correlation_top5_of_champion": {
+      "payment_delay_days": {
+        "candidate": -0.151,
+        "champion": 0.406
+      },
+      "contract_months_left": {
+        "candidate": 0.115,
+        "champion": -0.377
+      },
+      "complaints_90d": {
+        "candidate": -0.022,
+        "champion": 0.369
+      },
+      "nps": {
+        "candidate": -0.009,
+        "champion": -0.281
+      },
+      "tenure_months": {
+        "candidate": -0.026,
+        "champion": -0.265
+      }
+    }
+  },
+  "seconds": 2.1
+}

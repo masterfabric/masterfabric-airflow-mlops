@@ -1,0 +1,103 @@
+{
+  "version": "5",
+  "champion": "4",
+  "month": "2026-10",
+  "stage_pct": 5,
+  "rollback_reason": null,
+  "checks": [
+    {
+      "hypothesis": "infrastructure",
+      "status": "inconclusive",
+      "finding": "no guardrail numbers given",
+      "evidence": {}
+    },
+    {
+      "hypothesis": "population",
+      "status": "ruled_out",
+      "finding": "routed 3,381 vs 62,893 subscribers: max PSI 0.0053 (voice_min)",
+      "evidence": {
+        "max_psi": 0.0053,
+        "feature": "voice_min",
+        "routed": 3381
+      }
+    },
+    {
+      "hypothesis": "contract",
+      "status": "ruled_out",
+      "finding": "identical input signature",
+      "evidence": {
+        "inputs": 16,
+        "differences": []
+      }
+    },
+    {
+      "hypothesis": "training_inputs",
+      "status": "ruled_out",
+      "finding": "training months 2026-06,2026-07,2026-08 vs champion's 2026-05,2026-06,2026-07: max PSI 0.0108 (plan)",
+      "evidence": {
+        "max_psi": 0.0108,
+        "feature": "plan",
+        "candidate_months": [
+          "2026-06",
+          "2026-07",
+          "2026-08"
+        ],
+        "champion_months": [
+          "2026-05",
+          "2026-06",
+          "2026-07"
+        ]
+      }
+    },
+    {
+      "hypothesis": "model_signal",
+      "status": "ruled_out",
+      "finding": "registered holdout AUC 0.8297 on 2026-09",
+      "evidence": {
+        "holdout_auc": 0.8297
+      }
+    },
+    {
+      "hypothesis": "training_labels",
+      "status": "ruled_out",
+      "finding": "reproduction from lineage scores 0.8297 on 2026-09, the registered artefact 0.8297 (gap +0.0000); the artefact scores 0.8511 AUC on its own training months' labels",
+      "evidence": {
+        "reproduction_auc": 0.8297,
+        "registered_auc": 0.8297,
+        "gap": 0.0,
+        "artefact_auc_on_training_labels": 0.8511,
+        "train_rows": 192985,
+        "seconds": 1.6
+      }
+    }
+  ],
+  "supported": [],
+  "root_cause": null,
+  "verdict": "no anomaly found: the candidate looks sound",
+  "disagreement": {
+    "spearman_candidate_vs_champion": 0.9692,
+    "feature_rank_correlation_top5_of_champion": {
+      "payment_delay_days": {
+        "candidate": 0.406,
+        "champion": 0.426
+      },
+      "complaints_90d": {
+        "candidate": 0.369,
+        "champion": 0.394
+      },
+      "contract_months_left": {
+        "candidate": -0.377,
+        "champion": -0.387
+      },
+      "nps": {
+        "candidate": -0.281,
+        "champion": -0.309
+      },
+      "tenure_months": {
+        "candidate": -0.265,
+        "champion": -0.276
+      }
+    }
+  },
+  "seconds": 2.3
+}
