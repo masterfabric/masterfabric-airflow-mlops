@@ -38,7 +38,7 @@ They are read from [`docs/results/`](docs/results); none are estimates.
 ## Contents
 
 [Why](#why-this-lab) · [Architecture](#architecture) · [The monthly decision](#the-monthly-decision) ·
-[Results](#results) · [Monitoring, features and rollout](#monitoring-features-and-rollout) · [Screenshots](#what-it-looks-like) · [Quickstart](#quickstart) ·
+[Results](#results) · [Monitoring, features and rollout](#monitoring-features-and-rollout) · [Root cause and drift-triggered retraining](#root-cause-reports-and-drift-triggered-retraining) · [Screenshots](#what-it-looks-like) · [Quickstart](#quickstart) ·
 [Walkthrough](#walkthrough) · [Enterprise mapping](#enterprise-mapping) · [Design decisions](#design-decisions) ·
 [Limitations](#limitations) · [Roadmap](#roadmap) · [License](#license)
 
@@ -316,46 +316,103 @@ guardrails of [ADR 0007](docs/adr/0007-canary-rollout-guardrails.md), which were
 - Latency here is the model's own inference time inside a 50-subscriber request, with 4 concurrent
   clients on the laptop; v5 and v4 are the same model family, so they should be close, and they are.
 
+## Root-cause reports and drift-triggered retraining
+
+### Why was v6 rolled back? An automatic answer
+
+A guardrail says that a canary disagreed with the champion, not why. On every rollback
+`scripts/rollout.py` now runs `mlops/rca.py` ([ADR 0010](docs/adr/0010-automatic-root-cause-report.md)),
+which checks six hypotheses with what the platform already records and writes
+[`rca_v6.md`](docs/results/rca_v6.md). It never reads how the candidate was made. v6 was re-rolled
+against the current champion v5: rolled back again at 5 % (Spearman −0.073), report in 2.1 s.
+
+<p align="center"><img src="docs/images/rca_report.png" alt="Hypothesis checks for v6 and v5, and the lineage reproduction AUCs" width="100%"></p>
+<p align="center"><sub><b>Figure 11.</b> Left: every check for the rolled-back v6 and, as a control, for v5, which passed the rollout. Right: the deciding check. Retrained from v6's own lineage tags on the lake's labels, the recipe scores 0.830; the registered artefact scores 0.441, and only 0.448 on the labels of the months it claims to have learnt from.</sub></p>
+
+| # | Hypothesis | v6 | v5 (control) |
+|---|---|---|---|
+| 1 | Infrastructure: canary errors, latency | ruled out (0 % errors, p95 6.0 vs 27.5 ms) | not given |
+| 2 | Population: routed vs other subscribers | ruled out (max PSI 0.0053) | ruled out |
+| 3 | Contract: input signature | ruled out (identical) | ruled out |
+| 4 | Training inputs vs champion's | ruled out (same months, PSI 0.0000) | ruled out (PSI 0.0108) |
+| 5 | Model signal: registered holdout AUC | **supported** (0.4414) | ruled out (0.8297) |
+| 6 | Training labels: reproduce from lineage | **supported** (0.8297 vs 0.4414; 0.4484 on its own training labels) | ruled out (0.8297 = 0.8297) |
+
+**Verdict for v6: label corruption in the training job**, the incident that was injected (labels
+shuffled). The report also shows which features each model follows: the champion's ranking rises with
+`payment_delay_days` (Spearman 0.41) and `complaints_90d` (0.37); v6's does not (−0.15, −0.02).
+
+### Drift-triggered retraining
+
+The monthly DAG looks at drift once a month. The `drift_watch` DAG ([ADR 0011](docs/adr/0011-drift-triggered-retraining.md))
+checks the traffic the API actually serves every 10 minutes: the API keeps the features of a stable
+20 % sample of subscribers, and the watcher computes PSI on the newest 2,000 of them against the
+champion's training data. It retrains with the monthly recipe only on a breach in two consecutive
+checks **and** when a labelled month exists that the last attempt did not have.
+
+`make drift-watch` puts the stale v1 back as champion and serves 2026-05, then 2026-07, then 2026-08
+subscribers through the API, running the DAG after every 2,500; afterwards v5 is champion again
+([`drift_watch.json`](docs/results/drift_watch.json)).
+
+<p align="center"><img src="docs/images/drift_watch.png" alt="Max PSI per watcher run with the actions taken" width="100%"></p>
+<p align="center"><sub><b>Figure 12.</b> Watcher runs over 40,000 served subscribers. The dotted line is where 2026-07 traffic starts.</sub></p>
+
+| Served | Watcher | Result |
+|---|---|---|
+| 2026-05, subscribers 0–10,000 | PSI 0.19 (`contract_months_left`) | no action |
+| 2026-07 from 10,000 | breach at 20,000 (PSI 0.266, `plan`), sustained at 22,500 | retrain **rejected**: v10 0.7816 vs v1 0.7819 on 2026-06 |
+| 2026-07, 25,000 | PSI 0.313 | suppressed: no labels newer than 2026-06 |
+| 2026-08, labels up to 2026-07 | PSI 0.336 | retrain **promoted** v11: 0.819 vs 0.7796; the API served it 4.1 s later |
+| 2026-08 after the swap | PSI 0.28–0.34 against v11's data | suppressed: no new labels |
+
+- On the 2026-08 labels, v1 scores 0.7818 and v11 0.8188.
+- The watcher reached exactly the models the monthly DAG built (v10 = v2, v11 = v3). With labels that
+  arrive monthly, it cannot promote earlier than the monthly run. It helps when labels arrive more
+  often than the schedule, and as an alarm in between.
+- The first run had the guard per champion, and right after the promotion the watcher retrained the
+  same recipe again (identical AUC, rejected). The guard now counts every earlier attempt.
+- Retrain plus registration took 3.5 to 3.7 s here; a watcher run without retraining takes 2.5 s.
+
 ## What it looks like
 
 <p align="center"><img src="docs/screenshots/airflow_grid.png" alt="Airflow grid of churn_monthly with 12 successful runs" width="100%"></p>
-<p align="center"><sub><b>Figure 11.</b> Airflow grid of <code>churn_monthly</code> after the backfill: 12 runs, with skipped branches (pink) where the DAG kept the champion or halted.</sub></p>
+<p align="center"><sub><b>Figure 13.</b> Airflow grid of <code>churn_monthly</code> after the backfill: 12 runs, with skipped branches (pink) where the DAG kept the champion or halted.</sub></p>
 
 <p align="center"><img src="docs/screenshots/airflow_graph_2026_08.png" alt="Airflow graph view of the 2026-08 run that promoted v3" width="100%"></p>
-<p align="center"><sub><b>Figure 12.</b> Graph of the 2026-08 run: the gate passed, <code>decide</code> took the retrain branch and v3 was promoted.</sub></p>
+<p align="center"><sub><b>Figure 14.</b> Graph of the 2026-08 run: the gate passed, <code>decide</code> took the retrain branch and v3 was promoted.</sub></p>
 
 <p align="center"><img src="docs/screenshots/mlflow_registry_churn.png" alt="MLflow registry page for churn with versions, tags and aliases" width="100%"></p>
-<p align="center"><sub><b>Figure 13.</b> MLflow registry at the end of the backfill: v4 is <code>@champion</code> and v1 is <code>@static_baseline</code> (Figure 21 shows it after the canary rollout). Holdout metrics and the rejection reason are tags.</sub></p>
+<p align="center"><sub><b>Figure 15.</b> MLflow registry at the end of the backfill: v4 is <code>@champion</code> and v1 is <code>@static_baseline</code> (Figure 21 shows it after the canary rollout). Holdout metrics and the rejection reason are tags.</sub></p>
 
 <p align="center"><img src="docs/screenshots/mlflow_experiment_runs.png" alt="MLflow experiment churn-training with one run per challenger" width="100%"></p>
-<p align="center"><sub><b>Figure 14.</b> One MLflow run per challenger, with parameters, holdout metrics and the champion's AUC on the same holdout.</sub></p>
+<p align="center"><sub><b>Figure 16.</b> One MLflow run per challenger, with parameters, holdout metrics and the champion's AUC on the same holdout.</sub></p>
 
 <p align="center"><img src="docs/screenshots/api_swagger_model.png" alt="Swagger UI of the scoring API showing GET /model answered by version 4" width="70%"></p>
-<p align="center"><sub><b>Figure 15.</b> The scoring API reports which version it serves, when it loaded it and how many swaps it has made.</sub></p>
+<p align="center"><sub><b>Figure 17.</b> The scoring API reports which version it serves, when it loaded it and how many swaps it has made.</sub></p>
 
 <p align="center"><img src="docs/screenshots/s3_console_scores.png" alt="RustFS console with monthly score partitions" width="100%"></p>
-<p align="center"><sub><b>Figure 16.</b> Monthly score partitions in the S3 store, one per month from 2026-05, the first month with a champion. Each holds <code>auto.parquet</code> and <code>static.parquet</code>.</sub></p>
+<p align="center"><sub><b>Figure 18.</b> Monthly score partitions in the S3 store, one per month from 2026-05, the first month with a champion. Each holds <code>auto.parquet</code> and <code>static.parquet</code>.</sub></p>
 
 <p align="center"><img src="docs/screenshots/evidently_dashboard.png" alt="Evidently UI dashboard of the churn-monitoring project with drifted columns per month and realised ROC AUC" width="100%"></p>
-<p align="center"><sub><b>Figure 17.</b> Evidently UI, project <code>churn-monitoring</code>: drifted columns per month (default detector) and the realised ROC AUC of each month's scores. Runs are stamped with their business month.</sub></p>
+<p align="center"><sub><b>Figure 19.</b> Evidently UI, project <code>churn-monitoring</code>: drifted columns per month (default detector) and the realised ROC AUC of each month's scores. Runs are stamped with their business month.</sub></p>
 
 <p align="center"><img src="docs/screenshots/evidently_drift_2026_07.png" alt="Evidently data drift report for 2026-07 against the v1 reference: 7 of 16 columns drifted" width="100%"></p>
-<p align="center"><sub><b>Figure 18.</b> The 2026-07 drift report against v1's training sample: 7 of 16 columns flagged by the default detector, while the DAG's PSI rule flagged only <code>plan</code>.</sub></p>
+<p align="center"><sub><b>Figure 20.</b> The 2026-07 drift report against v1's training sample: 7 of 16 columns flagged by the default detector, while the DAG's PSI rule flagged only <code>plan</code>.</sub></p>
 
 <p align="center"><img src="docs/screenshots/feast_feature_view.png" alt="Feast UI showing the subscriber_monthly feature view with 16 features and the churn_model feature service" width="100%"></p>
-<p align="center"><sub><b>Figure 19.</b> Feast UI: feature view <code>subscriber_monthly</code> (16 features, entity <code>subscriber</code>), consumed by the feature service <code>churn_model</code>.</sub></p>
+<p align="center"><sub><b>Figure 21.</b> Feast UI: feature view <code>subscriber_monthly</code> (16 features, entity <code>subscriber</code>), consumed by the feature service <code>churn_model</code>.</sub></p>
 
 <p align="center"><img src="docs/screenshots/feast_lineage.png" alt="Feast lineage from the snapshot source through the feature view to the churn_model feature service" width="100%"></p>
-<p align="center"><sub><b>Figure 20.</b> Feast lineage: gated snapshot source → <code>subscriber_monthly</code> → <code>churn_model</code>.</sub></p>
+<p align="center"><sub><b>Figure 22.</b> Feast lineage: gated snapshot source → <code>subscriber_monthly</code> → <code>churn_model</code>.</sub></p>
 
 <p align="center"><img src="docs/screenshots/mlflow_registry_after_rollout.png" alt="MLflow registry after the rollout: v5 holds champion, v6 carries a rollback reason, canary_percent is 0" width="100%"></p>
-<p align="center"><sub><b>Figure 21.</b> The registry after the rollout: v5 holds <code>@champion</code> with <code>promoted_by</code>, v6 carries <code>rollback_reason</code>, and the model tag <code>canary_percent</code> is back at 0.</sub></p>
+<p align="center"><sub><b>Figure 23.</b> The registry after the rollout: v5 holds <code>@champion</code> with <code>promoted_by</code>, v6 carries <code>rollback_reason</code>, and the model tag <code>canary_percent</code> is back at 0.</sub></p>
 
 <p align="center"><img src="docs/screenshots/mlflow_v6_rollback_tag.png" alt="MLflow version 6 page with the tag rollback_reason: stage 5%: rank_agreement" width="100%"></p>
-<p align="center"><sub><b>Figure 22.</b> Version 6: rolled back at the 5 % stage on the rank-agreement guardrail.</sub></p>
+<p align="center"><sub><b>Figure 24.</b> Version 6: rolled back at the 5 % stage on the rank-agreement guardrail.</sub></p>
 
 <p align="center"><img src="docs/screenshots/airflow_graph_monitoring_tasks.png" alt="Airflow graph of churn_monthly with the new publish_features and evidently_report tasks" width="100%"></p>
-<p align="center"><sub><b>Figure 23.</b> The DAG with <code>publish_features</code> and <code>evidently_report</code>. Their grid cells are empty because the 12 existing months ran them with <code>airflow tasks test</code> (no run state); a fresh backfill runs them inside the DAG.</sub></p>
+<p align="center"><sub><b>Figure 25.</b> The DAG with <code>publish_features</code> and <code>evidently_report</code>. Their grid cells are empty because the 12 existing months ran them with <code>airflow tasks test</code> (no run state); a fresh backfill runs them inside the DAG.</sub></p>
 
 ## Quickstart
 
@@ -423,7 +480,7 @@ cd scripts && ../.venv/bin/python make_charts.py && ../.venv/bin/python make_dia
 ## Enterprise mapping
 
 <p align="center"><img src="docs/images/cloudera_mapping.png" alt="Mapping of each lab component to Cloudera CDE and CML" width="100%"></p>
-<p align="center"><sub><b>Figure 24.</b> Each concern in the lab and its Cloudera CDP counterpart.</sub></p>
+<p align="center"><sub><b>Figure 26.</b> Each concern in the lab and its Cloudera CDP counterpart.</sub></p>
 
 The DAG and the `mlops` package are written to move to a Cloudera estate with few changes:
 
@@ -487,6 +544,13 @@ The DAG and the `mlops` package are written to move to a Cloudera estate with fe
   hand-written join, which Feast was shown to match.
 - **No business metric.** AUC and top-decile lift stand in for retention value. A real evaluation would
   price the offer and measure uplift with a holdout of untreated customers.
+- **Root-cause report covers six hypotheses.** It was tested on one injected incident (shuffled
+  labels) and one healthy control; a segment-only failure or an online/offline feature mismatch is not
+  among its checks. The deciding check retrains, which is seconds here and can be hours at scale.
+- **Drift watcher was exercised by replay, not by the scheduler.** The DAG is created paused; the
+  experiment calls `airflow dags test` after every 2,500 subscribers, so "every 10 minutes" was not
+  measured in wall time. It added model versions 7 to 11 to the registry (tagged
+  `drift_watch_experiment`).
 
 ## Roadmap
 
