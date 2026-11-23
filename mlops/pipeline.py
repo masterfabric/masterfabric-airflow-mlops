@@ -152,14 +152,16 @@ def _frame(months: list[str]) -> pd.DataFrame:
     return pd.concat(parts, ignore_index=True)
 
 
-def train_and_promote(month: str) -> dict:
+def challenger(month: str, run_name: str | None = None, extra_tags: dict | None = None) -> dict:
+    """Train on the newest labelled months before `month`, compare with the champion on the newest one and
+    promote if the gain is at least MIN_GAIN. Shared by the monthly DAG and the drift watcher."""
     avail = labelled_months(month)
     holdout_m, train_ms = avail[-1], avail[-1 - TRAIN_MONTHS:-1]
     train_df, hold = _frame(train_ms), _frame([holdout_m])
     X = data.FEATURES_NUM + data.FEATURES_CAT
     mlflow.set_experiment(EXPERIMENT)
     v_before, tags_before = champion()
-    with mlflow.start_run(run_name=f"challenger-{month}") as run:
+    with mlflow.start_run(run_name=run_name or f"challenger-{month}") as run:
         pipe = model.train(train_df)
         ch = model.evaluate(pipe.predict_proba(hold[X])[:, 1], hold[data.LABEL].to_numpy())
         mlflow.log_params(model.PARAMS | {"train_months": ",".join(train_ms), "holdout_month": holdout_m,
@@ -177,8 +179,9 @@ def train_and_promote(month: str) -> dict:
                                         input_example=sample.head(2), pyfunc_predict_fn="predict_proba")
         version = str(info.registered_model_version)
     client = _client()
-    for k, v in {"holdout_auc": ch["auc"], "holdout_month": holdout_m, "train_months": ",".join(train_ms),
-                 "trained_in_month": month}.items():
+    tags = {"holdout_auc": ch["auc"], "holdout_month": holdout_m, "train_months": ",".join(train_ms),
+            "trained_in_month": month} | (extra_tags or {})
+    for k, v in tags.items():
         client.set_model_version_tag(MODEL, version, k, str(v))
     store.put(train_df[X].sample(n=min(20000, len(train_df)), random_state=3), f"reference/churn/v{version}.parquet")
 
@@ -189,14 +192,24 @@ def train_and_promote(month: str) -> dict:
             client.set_registered_model_alias(MODEL, "static_baseline", version)   # the "never retrain" policy
     else:
         client.set_model_version_tag(MODEL, version, "rejected_reason", f"auc {ch['auc']} < champion {champ_auc} + {MIN_GAIN}")
+    return {"version": version, "promoted": promoted, "challenger_auc": ch["auc"], "champion_auc": champ_auc,
+            "champion_before": v_before, "holdout_month": holdout_m, "train_months": train_ms,
+            "run_id": run.info.run_id}
+
+
+def train_and_promote(month: str) -> dict:
+    r = challenger(month)
+    version, promoted, v_before = r["version"], r["promoted"], r["champion_before"]
     row = db.query("SELECT reasons, details FROM decisions WHERE month=%s", (month,))[0]
     db.upsert("decisions", {"month": month, "action": "promoted" if promoted else "rejected",
                             "reasons": row["reasons"], "champion_before": v_before,
                             "champion_after": version if promoted else v_before, "challenger_version": version,
-                            "details": row["details"] | {"challenger_auc": ch["auc"], "champion_auc": champ_auc,
-                                                         "holdout_month": holdout_m, "train_months": train_ms,
-                                                         "run_id": run.info.run_id}}, ("month",))
-    return {"version": version, "promoted": promoted, "challenger_auc": ch["auc"], "champion_auc": champ_auc}
+                            "details": row["details"] | {"challenger_auc": r["challenger_auc"],
+                                                         "champion_auc": r["champion_auc"],
+                                                         "holdout_month": r["holdout_month"],
+                                                         "train_months": r["train_months"],
+                                                         "run_id": r["run_id"]}}, ("month",))
+    return {k: r[k] for k in ("version", "promoted", "challenger_auc", "champion_auc")}
 
 
 # -- 6. batch scoring -------------------------------------------------------------------------
