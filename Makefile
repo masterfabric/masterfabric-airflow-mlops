@@ -4,7 +4,7 @@ COMPOSE := docker compose --env-file .env -f docker/compose.yaml --profile monit
 AF      := docker exec -w /opt/airflow/repo mf-mlops-airflow-scheduler
 PY      ?= .venv/bin/python
 
-.PHONY: help env up down ps logs test backfill status report demo monitoring candidates rollout
+.PHONY: help env up down ps logs test backfill status report demo monitoring candidates rollout rca drift-watch ops-assets
 
 help: ## Show targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-14s\033[0m %s\n",$$1,$$2}'
@@ -54,3 +54,12 @@ candidates: ## Register rollout candidates: a normal one and one trained on shuf
 rollout: ## Canary 5/25/50% with guardrails for the given versions, e.g. make rollout VERSIONS="6 5"
 	$(AF) python -W ignore scripts/rollout.py $(VERSIONS)
 	$(AF) python -W ignore scripts/byid_demo.py
+
+rca: ## Root-cause report for a version against a champion, e.g. make rca VERSION=6 CHAMPION=5
+	$(AF) python -W ignore scripts/rca.py $(VERSION) --champion $(CHAMPION)
+
+drift-watch: ## Replay 2026-05/07/08 traffic on a stale champion with the drift watcher; restores the champion (about 3 minutes)
+	$(AF) python -W ignore scripts/drift_experiment.py
+
+ops-assets: ## Charts for the root-cause report and the drift watcher
+	cd scripts && ../$(PY) make_ops_assets.py
