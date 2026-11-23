@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import sys
 import time
 import urllib.request
@@ -24,7 +25,7 @@ from scipy.stats import spearmanr
 from sklearn.metrics import roc_auc_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from mlops import data, db, pipeline, store  # noqa: E402
+from mlops import data, db, pipeline, rca, store  # noqa: E402
 
 API = "http://api:8000"
 MONTH = "2026-10"
@@ -32,7 +33,8 @@ STAGES = [5, 25, 50]
 BATCH, WORKERS = 50, 4
 LIMITS = {"error_rate": 0.005, "latency_factor": 1.5, "latency_slack_ms": 5.0, "spearman_min": 0.80,
           "mean_rel_diff_max": 0.25, "share_tolerance_pts": 1.5, "auc_ni_margin": -0.005}
-OUT = Path(__file__).resolve().parents[1] / "docs/results/rollout.json"
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / os.environ.get("ROLLOUT_OUT", "docs/results/rollout.json")
 INT = ["tenure_months", "complaints_90d", "support_calls_30d", "payment_delay_days", "contract_months_left",
        "device_age_months", "family_lines", "discount_pct", "device_5g"]
 
@@ -170,6 +172,12 @@ def run_candidate(v: str, batches, labels) -> dict:
             res["rollback_s"], _ = wait_for(lambda m: m["canary_version"] is None)
             c.set_model_version_tag(pipeline.MODEL, v, "rollback_reason", f"stage {pct}%: {','.join(failed)}")
             res |= {"outcome": "rolled_back", "failed_at_pct": pct, "failed_checks": failed}
+            # automatic root-cause report, attached to the version and saved next to the results
+            r = rca.investigate(v, MONTH, stage=g, champion=champ_before)
+            (ROOT / f"docs/results/rca_v{v}.json").write_text(json.dumps(r, indent=2, default=str) + "\n")
+            (ROOT / f"docs/results/rca_v{v}.md").write_text(rca.to_markdown(r))
+            c.set_model_version_tag(pipeline.MODEL, v, "rca_root_cause", r["root_cause"] or "none")
+            res["rca"] = {"root_cause": r["root_cause"], "verdict": r["verdict"], "seconds": r["seconds"]}
             return res
     res["paired_auc"] = pa = paired_auc(df, labels)
     promote = pa["ci95"][0] > LIMITS["auc_ni_margin"]
