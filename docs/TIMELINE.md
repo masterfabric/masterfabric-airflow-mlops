@@ -89,3 +89,40 @@ Found while running it:
   the stack was brought back with the Makefile's command, and volumes were not affected.
 - The first latency guardrail would have compared a canary request (canary plus shadow champion) with a
   champion-only request; the log now stores each model's own inference time.
+
+
+## Addition: root-cause reports and drift-triggered retraining (2026-11-23)
+
+| # | Commit | Time (Istanbul) | Change |
+|---|---|---|---|
+| 1 | `3f0268f` | 2026-11-23 11:48 | mlops: automatic root-cause report for a rolled-back canary (six hypotheses, evidence only) |
+| 2 | `df7969b` | 2026-11-23 11:48 | rollout: run the root-cause report on rollback and tag the version with its root cause |
+| 3 | `2282bc3` | 2026-11-23 11:49 | results: v6 re-rolled at 5 % with the automatic root-cause report (training_labels); v5 control finds no anomaly |
+| 4 | `7fa1379` | 2026-11-23 11:50 | pipeline: challenger() shared by the monthly DAG and the drift watcher (no behaviour change) |
+| 5 | `eb89d68` | 2026-11-23 11:50 | drift watcher: API samples request features; DAG checks PSI every 10 min and retrains on sustained drift with a new-labels guard |
+| 6 | `42edfad` | 2026-11-23 11:55 | drift watcher: the new-labels guard counts the attempt that promoted the current champion |
+| 7 | `0d554a8` | 2026-11-23 11:58 | results: drift watcher replay - stale v1, 2026-05/07/08 traffic; rejected without new labels, promoted with them |
+| 8 | `f8292be` | 2026-11-23 11:59 | charts: root-cause report and drift watcher timeline |
+| 9 | `da480bb` | 2026-11-23 12:00 | make: rca, drift-watch and ops-assets targets |
+| 10 | `7503617` | 2026-11-23 12:00 | ADRs 0010 (automatic root-cause report) and 0011 (drift-triggered retraining with a new-labels guard) |
+| 11 | `8a25178` | 2026-11-23 12:00 | README: root-cause report and drift watcher with Figures 11-12; figures renumbered; limitations |
+| 12 | (this commit) | | docs(timeline): this section |
+
+Verification at the end of this addition:
+
+| Check | Result |
+|---|---|
+| Unit tests (`make test`) | 14 passed (monthly path unchanged after the `challenger()` refactor) |
+| DAG import errors | none; `drift_watch` created paused |
+| `ROLLOUT_OUT=docs/results/rollout_rca.json scripts/rollout.py 6` | v6 rolled back at 5 % (Spearman −0.073), root cause `training_labels` in 2.1 s, version tagged |
+| `make rca VERSION=5 CHAMPION=4` | control: all hypotheses ruled out |
+| `make drift-watch` | 16 watcher runs; v10 rejected, v11 promoted (served 4.1 s later), champion restored to v5 |
+
+Found while running it:
+
+- `request_features` is created by the API's writer on first insert; the experiment's reset failed on a
+  fresh database until it created the table itself.
+- With the new-labels guard per champion, the watcher retrained right after a promotion with the same
+  labels (v9 = v8, rejected). The guard is now global; the committed results are from the second run.
+- The restored champion v5 cannot be judged on 2026-08 labels: it was trained on that month. Only v1 and
+  the drift-triggered v11 are compared there.
