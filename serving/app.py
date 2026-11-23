@@ -43,6 +43,9 @@ NAME = os.environ.get("MODEL_NAME", "churn")
 ALIAS = os.environ.get("MODEL_ALIAS", "champion")
 CANARY = os.environ.get("CANARY_ALIAS", "canary")
 REFRESH = int(os.environ.get("REFRESH_SECONDS", "15"))
+# Share of subscribers whose request features are kept for the drift watcher (stable per subscriber,
+# salted so it is independent of canary routing).
+FEATURE_SAMPLE_PCT = float(os.environ.get("FEATURE_SAMPLE_PCT", "20"))
 DB = os.environ.get("MLOPS_DB")
 FEAST_URL = os.environ.get("FEAST_URL")
 
@@ -51,6 +54,7 @@ _state: dict = {"model": None, "version": None, "run_id": None, "loaded_at": Non
                 "canary_model": None, "canary_version": None, "canary_percent": 0.0}
 _lock = threading.Lock()
 _log: queue.Queue = queue.Queue(maxsize=200_000)
+_flog: queue.Queue = queue.Queue(maxsize=200_000)
 _stats = {"logged": 0, "log_dropped": 0, "log_errors": 0}
 
 DDL = """
@@ -58,6 +62,9 @@ CREATE TABLE IF NOT EXISTS predictions_log (id BIGSERIAL PRIMARY KEY, ts TIMESTA
     subscriber_id TEXT, variant TEXT, model_version TEXT, probability DOUBLE PRECISION,
     shadow_version TEXT, shadow_probability DOUBLE PRECISION, latency_ms DOUBLE PRECISION, error TEXT);
 CREATE INDEX IF NOT EXISTS predictions_log_ts ON predictions_log (ts);
+CREATE TABLE IF NOT EXISTS request_features (id BIGSERIAL PRIMARY KEY, ts TIMESTAMPTZ NOT NULL,
+    subscriber_id TEXT, model_version TEXT, features JSONB);
+CREATE INDEX IF NOT EXISTS request_features_ts ON request_features (ts);
 """
 
 
@@ -122,11 +129,42 @@ def _writer() -> None:
             time.sleep(1)
 
 
+def _feature_writer() -> None:
+    import psycopg2
+    from psycopg2.extras import Json, execute_values
+    con = None
+    while True:
+        rows = [_flog.get()]
+        while len(rows) < 5000:
+            try:
+                rows.append(_flog.get_nowait())
+            except queue.Empty:
+                break
+        try:
+            if con is None or con.closed:
+                con = psycopg2.connect(DB)
+                with con, con.cursor() as cur:
+                    cur.execute(DDL)
+            with con, con.cursor() as cur:
+                execute_values(cur, "INSERT INTO request_features (ts, subscriber_id, model_version, features) VALUES %s",
+                               [(t, s, v, Json(f)) for t, s, v, f in rows])
+            _stats["features_logged"] = _stats.get("features_logged", 0) + len(rows)
+        except Exception:
+            _stats["log_errors"] += 1
+            con = None
+            time.sleep(1)
+
+
+def _sampled(subscriber_id: str) -> bool:
+    return bucket("features:" + subscriber_id) < FEATURE_SAMPLE_PCT
+
+
 @app.on_event("startup")
 def _start() -> None:
     threading.Thread(target=_refresh_loop, daemon=True).start()
     if DB:
         threading.Thread(target=_writer, daemon=True).start()
+        threading.Thread(target=_feature_writer, daemon=True).start()
 
 
 class Subscriber(BaseModel):
@@ -204,6 +242,15 @@ def _score(df: pd.DataFrame) -> dict:
                 _log.put_nowait(row)
             except queue.Full:
                 _stats["log_dropped"] += 1
+        recs = X.to_dict("records")
+        for i in range(len(df)):
+            if FEATURE_SAMPLE_PCT > 0 and _sampled(ids[i]):
+                f = {k: (None if isinstance(val, float) and np.isnan(val) else
+                         val.item() if hasattr(val, "item") else val) for k, val in recs[i].items()}
+                try:
+                    _flog.put_nowait((now, ids[i], v, f))
+                except queue.Full:
+                    _stats["log_dropped"] += 1
     return {"model_version": v, "canary_version": cv, "canary_percent": pct, "latency_ms": round(ms, 2),
             "scores": [{"subscriber_id": s, "churn_probability": round(float(p), 5), "variant": var, "model_version": ver}
                        for s, p, var, ver in zip(ids, out_p, variant, version)]}
