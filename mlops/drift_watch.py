@@ -7,7 +7,7 @@ when all of these hold:
 
 1. at least MIN_ROWS rows were sampled since the champion took over (no verdict on thin data),
 2. max PSI > PSI_LIMIT in CONSECUTIVE checks in a row (one noisy window does not retrain),
-3. a labelled month exists that the last drift-triggered attempt for this champion did not have.
+3. a labelled month exists that the last drift-triggered attempt (for any champion) did not have.
    Without new labels a challenger can only learn the old regime again (the 2026-07 rejection in the
    monthly run), so the watcher records `suppressed_no_new_labels` and keeps alerting instead.
 
@@ -71,8 +71,10 @@ def check(as_of: str) -> dict:
         labelled = pipeline.labelled_months(as_of)
         newest = labelled[-1] if labelled else None
         row["newest_label"] = newest
-        tried = db.query("SELECT newest_label FROM drift_watch WHERE champion = %s AND action LIKE 'retrain%%' "
-                         "ORDER BY id DESC LIMIT 1", (v,))
+        # any earlier attempt counts, also one that promoted the current champion: retraining again on
+        # the same labels reproduces it (first run of the experiment: v9 = v8, rejected)
+        tried = db.query("SELECT newest_label FROM drift_watch WHERE action LIKE 'retrain%%' "
+                         "ORDER BY id DESC LIMIT 1")
         if not breach:
             row["action"] = "ok"
         elif not sustained:
