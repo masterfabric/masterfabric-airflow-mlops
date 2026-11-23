@@ -15,3 +15,5 @@ to see where this lab deliberately differs and why.
 | [0007](0007-canary-rollout-guardrails.md) | Champion changes go through a sticky canary with pre-declared guardrails |
 | [0008](0008-evidently-observes-psi-decides.md) | Evidently reports drift and quality; the in-house PSI still decides |
 | [0009](0009-feast-point-in-time-features.md) | Feast for point-in-time training frames and an online store |
+| [0010](0010-automatic-root-cause-report.md) | A rolled-back canary gets an automatic root-cause report |
+| [0011](0011-drift-triggered-retraining.md) | Drift on served traffic triggers retraining, guarded by new labels |
